@@ -50,6 +50,35 @@ spring.redis.port=6379
 ── config
 │   └── RedisConfig.java
 
+
+🟢 WAY 1: RedisTemplate + Serializable (Manual way)
+Entity / POJO classes
+
+📄 Class
+model → Doctor.java
+👉 Redis me object store karna hai to:
+implements Serializable
+
+🔹 Why Serializable?
+Redis object ko byte stream me convert karke store karta hai.
+
+🟢 WAY 2: @Cacheable + Annotations (Automatic way ⭐)
+Ye latest + recommended approach hai
+ex-
+@Cacheable(value = "doctors", key = "#id")
+public Doctor getDoctor(Long id) {
+    System.out.println("👉 Fetching from DATABASE");
+    return doctorRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Not found"));
+}
+
+in RedisConfig you have add this anotaion
+@Configuration
+@EnableCaching
+public class RedisConfig {
+}
+
+
 7️⃣ Redis Configuration
 @Configuration
 public class RedisConfig {

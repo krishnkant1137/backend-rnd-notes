@@ -67,18 +67,20 @@ public class RedisConfig {
 8️⃣ Service Layer (CORE REDIS LOGIC)
     private final RedisTemplate<String, Object> redisTemplate;
 
-	public String getDoctor() {
-        String key = "doctor:1";
-        String value = (String) redisTemplate.opsForValue().get(key);
-        if (value != null) {
-            System.out.println("⚡ Data from REDIS");
-            return value;
-        }
-        System.out.println("👉 Data from DATABASE");
-        value = "Dr. Sharma";
-        redisTemplate.opsForValue().set(key, value, 5, TimeUnit.MINUTES);
-        return value;
+public Doctor getDoctor(Long id) {
+    String key = "doctor:" + id;
+    Doctor cached = (Doctor) redisTemplate.opsForValue().get(key);
+    if (cached != null) {
+        return cached;
     }
+    Doctor doctor = doctorRepository
+            .findById(id)
+            .orElseThrow(() ->
+                new RuntimeException("Doctor not found"));
+    redisTemplate.opsForValue().set(key, doctor, 5, TimeUnit.MINUTES);
+    return doctor;
+}
+
 
 First API Call:
 GET /doctors
